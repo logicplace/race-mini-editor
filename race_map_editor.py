@@ -10,9 +10,10 @@ import tomlkit
 
 from lib.maps import save_tmx, load_tmx
 from lib.util import (
-	load_tileset, write_tileset, write_spriteset, draw_track, TITLES_GRANDPRIX, TITLES_RANKING
+	load_tileset, load_spriteset, write_tileset, write_spriteset, draw_track, TITLES_GRANDPRIX,
+	TITLES_RANKING
 )
-from lib.structures import GrandPrixTrack
+from lib.structures import GrandPrixTrack, read2b_base
 
 
 class Error(Exception):
@@ -24,9 +25,10 @@ track_types = {"GrandPrixTrack": GrandPrixTrack}
 
 with open("tracks.toml") as f:
 	obj = tomlkit.loads(f.read())
+	config = {k: v for k, v in obj.items() if not isinstance(v, dict)}
 	for key, kwargs in obj.items():
 		t = kwargs.pop("type")
-		tracks[key] = track_types[t](key, **kwargs)
+		tracks[key] = track_types[t](key, **kwargs, config=config)
 
 parser = argparse.ArgumentParser(description="Import and export track data for Pokemon Race mini")
 parser.add_argument("rom", help="Pokemon Race mini ROM file")
@@ -112,6 +114,10 @@ try:
 			load_tileset(f, TITLES_GRANDPRIX, height=8)
 			load_tileset(f, TITLES_RANKING)
 
+			config["ai_easy_table_base"] = read2b_base(f, config["ai_table_base"], 0)
+			config["ai_normal_table_base"] = read2b_base(f, config["ai_table_base"], 1)
+			config["ai_hard_table_base"] = read2b_base(f, config["ai_table_base"], 2)
+
 			exports = args.tracks if args.tracks else list(tracks.keys())
 			for e in exports:
 				if e.startswith("tileset:"):
@@ -123,7 +129,10 @@ try:
 					else:
 						raise Error("TMS not implemented yet")
 				elif e.startswith("spriteset:"):
-					raise Error("sprites not implemented yet")
+					addr = int(e[10:], 16)
+					load_spriteset(f, addr)
+					print(f"Rendering spriteset ${addr:06x}...")
+					write_spriteset(addr, args.out)
 				else:
 					try:
 						addr = int(e, 16)
