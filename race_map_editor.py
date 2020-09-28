@@ -204,6 +204,7 @@ try:
 			# Save title tilesets wholesale, TODO: consider saving partially?
 			save_tileset(f, config["titles_grand_prix_tileset"])
 			save_tileset(f, config["titles_menus_tileset"])
+			print("Wrote title tilesets")
 
 			# TODO: reallocate tables as needed
 			# for now, just make sure lengths are <= what's there
@@ -271,6 +272,7 @@ try:
 			# Import tilesets, TODO: ensure correct size
 			for base in update["tilesets"]:
 				save_tileset(f, base)
+			print("Wrote track tilesets")
 	else:
 		raise Error(f"Unknown(?) command {args.command}")
 

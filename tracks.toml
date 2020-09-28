@@ -2,16 +2,20 @@
 # Modes: Gp = Grand prix
 # Cups: Rk = Rookie, Sp = Super, Hp = Hyper
 
+# Number of tracks in the game
 track_count = 16
 
+# Grand prix-related addressing tables
 ai_table_base = 0x0368ed
 audio_table_base = 0x00646a
 metadata_array_base = 0x0240a6
 track_screens_array_base = 0x010562
 
+# Minlib audio tables (currently unused)
 audio_notes_table_base = 0x0063d6
 audio_pulse_width_table_base = 0x0063a2
 
+# Track name graphics, tilesets and grand prix tilemaps
 titles_grand_prix_tileset = 0x07c180
 titles_menus_tileset = 0x07b068
 titles_nobar_tilemaps_array_base = 0x020edf

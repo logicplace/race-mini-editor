@@ -14,7 +14,7 @@ To learn how to use it in more detail, use: `./race_map_editor.py --help`
 
 Export everything with: `./race_map_editor.py /path/to/race.min x -o dump`
 
-Currently this exports tilesets, tilemaps, track titles, and some metadata info for the Rookie Cup tracks. You may define more tracks in [tracks.toml](tracks.toml).
+Currently this exports tilesets, tilemaps, track titles, sound data, AI, and some metadata info for the Rookie Cup tracks. You may define more tracks in [tracks.toml](tracks.toml).
 
 To export spritesheets, use the flag `-sp` somewhere after `x`
 
@@ -22,7 +22,7 @@ To export spritesheets, use the flag `-sp` somewhere after `x`
 
 Edit the track with [Tiled](https://www.mapeditor.org/). The TMX library used here technically only supports up to 1.2 but 1.4 works fine for me so that's probably fine!
 
-You may edit the tilemap and metadata in Tiled. Note that the first and last 12 columns of tiles should be identical except for the flag. For the tileset, you'll have to edit it in your image editor of choice.
+You may edit the tilemap, AI (sorta), and metadata in Tiled. Note that the first and last 12 columns of tiles should be identical except for the flag. For the tileset, you'll have to edit it in your image editor of choice.
 
 Only use the correct tileset for the correct layer and do not change the layer names.
 
@@ -34,33 +34,27 @@ Import all tracks with: `./race_map_editor.py /path/to/race.min i -f dump`
 
 Make sure to back up the ROM yourself! It will confirm as such before importing.
 
-Currently this imports the tilesets, tilemaps, and metadata info editable in the TMX file.
+Currently this imports the tilesets, tilemaps, track BGMs, AI, and metadata info editable in the TMX file.
 
 ## tracks.toml ##
 
 ```toml
+# bases, see file
+
 [GpRk1]
 type = "GrandPrixTrack"
-metadata_base = 0x0240dd
-title_index = 0
-title_ditto_base = 0x020edf
-title_ranking_base = 0x021312
+index = 0
 ```
 
-Basically just a pickled class in toml, check out GrandPrixTrack in [structures.py](structures.py) for extra details.
+Basically just a pickled class in toml, check out GrandPrixTrack in [structures.py](structures.py) for extra details. etc.
 
 * The identifier goes in the square brackets, this is what you pass at the command-line to work on that one track.
-* `metadata_base` is the 2-byte value stored in $195c when playing a track + $020000.
-* `title_index` is the sequential index of the centered title graphics stored in the tileset at $07c180. May change this to a hex address later idk.
-* `title_ditto_base` and `title_ranking_base` are the locations of tilemaps for the tileset located at $07b068, used for the title bar in the ditto battle screen and the ranking screen, respectively.
+* `index` is the internal index of the track in the game, though. You can go by its order in the title tileset (tileset_07c180.png) where the upper left is 0, the one to the right of that is 1, and first one on the next row is 2, 
 
 ## TODO ##
 
-* Find music and AI locations. Are these related to the two unknowns?
 * Find track intro/ranking screen graphic.
-* Is there some place in the ROM that ties the title addresses and metadata address together?? Find/use if so.
-* Import titles (tilesets and maps).
-* Export/import sprite sheets.
+* Import sprite sheets.
 * Ideally, make a custom editor that can deal with typesetting the titles, generating preview maps, and editing the tilesets internally instead of using a separate image editor.
 * Potentially add the ability to edit things besides tracks (eg. other screens, for translations).
 
