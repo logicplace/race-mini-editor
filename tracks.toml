@@ -2,10 +2,15 @@
 # Modes: Gp = Grand prix
 # Cups: Rk = Rookie, Sp = Super, Hp = Hyper
 
+track_count = 16
+
 ai_table_base = 0x0368ed
-audio_table_base = 0x00646A
+audio_table_base = 0x00646a
 metadata_array_base = 0x0240a6
 track_screens_array_base = 0x010562
+
+audio_notes_table_base = 0x0063d6
+audio_pulse_width_table_base = 0x0063a2
 
 titles_grand_prix_tileset = 0x07c180
 titles_menus_tileset = 0x07b068
@@ -17,13 +22,13 @@ class = "GrandPrixTrack"
 index = 0
 
 [GpRk2]
-type = "GrandPrixTrack"
+class = "GrandPrixTrack"
 index = 1
 
 [GpRk3]
-type = "GrandPrixTrack"
+class = "GrandPrixTrack"
 index = 2
 
 [GpRk4]
-type = "GrandPrixTrack"
+class = "GrandPrixTrack"
 index = 3
