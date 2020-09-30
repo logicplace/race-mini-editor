@@ -11,7 +11,7 @@ from .encoders import encode_tiles
 
 if TYPE_CHECKING:
 	from .sound import MinLibSound
-	from .structures import GrandPrixTrack
+	from .structures import GrandPrixTrack, SpriteAttrs
 
 music: Dict[int, "MinLibSound"] = {}
 tilesets: Dict[int, Image.Image] = {}
@@ -47,10 +47,11 @@ def write_tileset(tileset: int, folder: str) -> str:
 	return fn
 
 
-def load_spriteset(f: BinaryIO, base: int, height=16):
+def load_spriteset(f: BinaryIO, base: int, height=16) -> Image.Image:
 	if base not in spritesets:
 		f.seek(base)
 		spritesets[base] = SpriteDecoder.from_stream(f, height=height)
+	return spritesets[base]
 
 
 def write_spriteset(spriteset: int, folder: str):
@@ -66,14 +67,39 @@ def write_info(track: "GrandPrixTrack", folder: str):
 
 
 def render_map(width: int, height: int, map: Sequence[int], tileset: Image.Image) -> Image.Image:
+	width_tiles = tileset.width // 8
 	img = Image.new("L", (width * 8, height * 8))
 	for i, tile in enumerate(map):
 		x = (i % width) * 8
 		y = (i // width) * 8
-		set_x = (tile % 16) * 8
-		set_y = (tile // 16) * 8
+		set_x = (tile % width_tiles) * 8
+		set_y = (tile // width_tiles) * 8
 		t = tileset.crop((set_x, set_y, set_x + 8, set_y + 8))
 		img.paste(t, (x, y, x + 8, y + 8))
+	return img
+
+
+def render_spritemap(
+	width: int, height: int, map: Sequence["SpriteAttrs"], spriteset: Image.Image
+) -> Image.Image:
+	min_x, max_x, min_y, max_y = 0, 0, 0, 0
+	for attrs in map:
+		min_x = min(min_x, attrs.x)
+		max_x = max(max_x, attrs.x)
+		min_y = min(min_y, attrs.y)
+		max_y = max(max_y, attrs.y)
+	max_x += 16
+	max_y += 16
+	width_tiles = spriteset.width // 16
+
+	img = Image.new("LA", (max_x - min_x, max_y - min_y))
+	for attrs in map:
+		x = attrs.x - min_x
+		y = attrs.y - min_y
+		set_x = (attrs.tile % width_tiles) * 16
+		set_y = (attrs.tile // width_tiles) * 16
+		t = spriteset.crop((set_x, set_y, set_x + 16, set_y + 16))
+		img.paste(t, (x, y, x + 16, y + 16))
 	return img
 
 

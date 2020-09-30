@@ -6,10 +6,11 @@
 track_count = 16
 
 # Grand prix-related addressing tables
-ai_table_base = 0x0368ed
-audio_table_base = 0x00646a
-metadata_array_base = 0x0240a6
-track_screens_array_base = 0x010562
+ai_table_base = 0x0368ed 
+audio_table_base = 0x00646a 
+metadata_array_base = 0x0240a6 
+track_screens_array_base = 0x010562 # hi = $07
+track_screens_gfx_bases = [0x072a00, 0x076600] 
 
 # Minlib audio tables (currently unused)
 audio_notes_table_base = 0x0063d6

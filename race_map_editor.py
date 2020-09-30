@@ -7,11 +7,12 @@ from typing import Dict
 from collections import OrderedDict
 
 import tomlkit
+from PIL import Image
 
 from lib.maps import save_tmx, load_tmx
 from lib.util import (
 	music, load_tileset, save_tileset, load_spriteset, write_tileset, write_spriteset, draw_track,
-	Table, PokeImportError
+	render_spritemap, Table, PokeImportError
 )
 from lib.sound import write_pmmusic, read_pmmusic, MinLibSound
 from lib.structures import GrandPrixTrack, read2b_base
@@ -116,6 +117,10 @@ try:
 			load_tileset(f, config["titles_grand_prix_tileset"], height=8)
 			load_tileset(f, config["titles_menus_tileset"])
 
+			# Load splash screen sprites
+			splash1 = load_spriteset(f, config["track_screens_gfx_bases"][0], height=15)
+			splash2 = load_spriteset(f, config["track_screens_gfx_bases"][1], height=15)
+
 			config["ai_easy_table_base"] = read2b_base(f, config["ai_table_base"], 0)
 			config["ai_normal_table_base"] = read2b_base(f, config["ai_table_base"], 1)
 			config["ai_hard_table_base"] = read2b_base(f, config["ai_table_base"], 2)
@@ -172,6 +177,13 @@ try:
 						print(f"Exporting sprite sheet for {track.ident}...")
 						if track.metadata.sprite_base not in written:
 							write_spriteset(track.metadata.sprite_base, args.out)
+						print(f"Exporting splash screen for {track.ident}...")
+						im1 = render_spritemap(6, 2, track.splash_spritemap, splash1)
+						im2 = render_spritemap(6, 2, track.splash_spritemap, splash2)
+						im = Image.new("LA", (im1.width, im1.height * 2))
+						im.paste(im1, (0, 0, im1.width, im1.height))
+						im.paste(im2, (0, im1.height, im2.width, im1.height + im2.height))
+						im.save(os.path.join(args.out, f"splash_{track.ident}.png"))
 
 	elif args.command in {"i", "import"}:
 		afn = os.path.abspath(args.rom)

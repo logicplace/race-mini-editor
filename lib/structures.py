@@ -194,6 +194,29 @@ class TrackGhost:
 		return ret
 
 
+class SpriteAttrs(NamedTuple):
+	x: int
+	y: int
+	tile: int
+	enable: bool
+	invert_color: bool
+	vflip: bool
+	hflip: bool
+
+	def to_bin(self) -> bytes:
+		options = (0x08 if self.enable else 0x00) | (0x04 if self.invert_color else
+			0x00) | (0x02 if self.vflip else 0x00) | (0x01 if self.hflip else 0x00)
+		return struct.pack("BBBB", self.x, self.y, self.tile, options)
+
+	@classmethod
+	def from_bin(cls, b: bytes) -> "TrackSplash":
+		options = b[3]
+		return cls(
+			b[0], b[1], b[2], bool(options & 0x08), bool(options & 0x04), bool(options & 0x02),
+			bool(options & 0x01)
+		)
+
+
 class GrandPrixTrackMetaData(NamedTuple):
 	# bases are 3 bytes, the rest are 1
 	tileset_base: int
@@ -211,7 +234,7 @@ class GrandPrixTrackMetaData(NamedTuple):
 	preview_map_height: int
 
 	@classmethod
-	def from_bin(cls, b) -> "GrandPrixTrackMetaData":
+	def from_bin(cls, b: bytes) -> "GrandPrixTrackMetaData":
 		return cls(
 			*(
 			int.from_bytes(a, "little") if isinstance(a, bytes) else a
@@ -238,6 +261,7 @@ class GrandPrixTrack:
 	preview_tilemap: Sequence[int]
 	title_ditto_tilemap: Sequence[int]
 	title_ranking_tilemap: Sequence[int]
+	splash_spritemap: Sequence[SpriteAttrs]
 
 	bgm: MinLibSound
 
@@ -257,6 +281,9 @@ class GrandPrixTrack:
 		title_ditto_base = read2b_base(f, config["titles_nobar_tilemaps_array_base"], idx)
 		title_ranking_base = read2b_base(f, config["titles_bar_tilemaps_array_base"], idx)
 
+		f.seek(config["track_screens_array_base"] + 2 * idx)
+		splash_map_base = 0x070000 | int.from_bytes(f.read(2), "little")
+
 		ai_easy_base = read2b_base(f, config["ai_easy_table_base"], idx)
 		ai_normal_base = read2b_base(f, config["ai_normal_table_base"], idx)
 		ai_hard_base = read2b_base(f, config["ai_hard_table_base"], idx)
@@ -268,7 +295,14 @@ class GrandPrixTrack:
 			"metadata": metadata_base,
 			"title_ditto": title_ditto_base,
 			"title_ranking": title_ranking_base,
+			"splash_map": splash_map_base,
 		}
+
+		f.seek(splash_map_base)
+		splash_map_data = f.read(12 * 4)
+		self.splash_spritemap = [
+			SpriteAttrs.from_bin(splash_map_data[i:i + 4]) for i in range(0, 12 * 4, 4)
+		]
 
 		f.seek(ai_easy_base)
 		self.ai_easy = TrackGhost.from_bin(f)
