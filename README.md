@@ -49,7 +49,7 @@ index = 0
 Basically just a pickled class in toml, check out GrandPrixTrack in [structures.py](structures.py) for extra details. etc.
 
 * The identifier goes in the square brackets, this is what you pass at the command-line to work on that one track.
-* `index` is the internal index of the track in the game, though. You can go by its order in the title tileset (tileset_07c180.png) where the upper left is 0, the one to the right of that is 1, and first one on the next row is 2, 
+* `index` is the internal index of the track in the game, though. You can go by its order in the title tileset (tileset_07c180.png) where the upper left is 0, the one to the right of that is 1, and first one on the next row is 2, etc.
 
 ## TODO ##
 
