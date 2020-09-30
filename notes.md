@@ -207,10 +207,10 @@ metadata format:
   * b for fun_02158d
 * 08: music index
   * written into int8_195e
-* 09: goal x position (crossing from any y counts as a lap)
+* 09: starting x offset
   * written into int16_195f (0-padded)
   * read every frame
-  * setting this too low causes the opponent to spawn much further into the level (wrapping issue?)
+  * setting this too low causes the opponent to spawn much further into the level (wrapping issue, sorta)
 * 0a: starting y offset for all players (and hoppip), in pixels
   * read in fun_011d1d, written to `[[$18b7] + $0e]`
   * that's then read in fun_017a2c, combined with the byte after it as int16_167c (for second map? also was 0), and used to calculate uint16_1938 and uint16_193c
